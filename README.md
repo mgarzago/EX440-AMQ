@@ -127,7 +127,7 @@ AMQ configuration excercices.
      ```
      
 ## 7. Clustering
-   - Secure the cluster connection suing the user cluster-admin with password cluster-root.
+   - Secure the cluster connection using the user cluster-admin with password cluster-root.
      ```xml
      <cluster-user>cluster-admin</cluster-user>
      <cluster-password>cluster-root</cluster-password>
