@@ -103,9 +103,66 @@ AMQ configuration excercices.
         ```
         
 ## 5. Configuring Acceptors and Connectors
-
+   - Secure the broker so that it uses TLS/SSL using port 5500 (?). 
+      - The keyStorePtah is ```/home/student/JB440/labs/jb440-review-1/keystore/activemq.example.keystore```
+      - The trustStorePath is ```/home/student/JB440/labs/jb440-review-1/keystore/activemq.example.truststore```
+      - The password for both files is activemqexample.
+     ```xml
+     <connectors>
+        <connector name="netty-ssl-connector">tcp://localhost:61616?sslEnabled=true;trustStorePath=/home/student/JB440/labs/jb440-review-1/keystore/activemq.example.truststore;trustStorePassword=activemqexample</connector>
+     </connectors>
+     <acceptors>
+        <acceptor name="netty-ssl-acceptor">tcp://localhost:61616?sslEnabled=true;keyStorePath=/home/student/JB440/labs/jb440-review-1/keystore/activemq.example.keystore;keyStorePassword=activemqexample</acceptor>
+     </acceptors>
+     ```
+     
 ## 6. Configuring Paging
-
+   - "Production." address should have a size in memory allowed of 100000 bytes and page size of 20000 bytes.
+     ```xml
+     <address-setting match="Production.#">
+        <max-size-bytes>100000</max-size-bytes>
+        <page-size-bytes>20000</page-size-bytes>
+        <address-full-policy>PAGE</address-full-policy>
+     </address-setting>
+     ```
+     
 ## 7. Clustering
+   - Secure the cluster connection suing the user cluster-admin with password cluster-root.
+     ```xml
+     <cluster-user>cluster-admin</cluster-user>
+     <cluster-password>cluster-root</cluster-password>
+     ```
+   - Configure cluster settings for a symetric cluster. Brokers should discover each other using UDP 231.7.8.12.
+     ```xml
+     <broadcast-groups>
+        <broadcast-group name="my-broadcast-group"> 
+           <group-address>${udp-address:231.7.8.12}</group-address> 
+           <group-port>9876</group-port> 
+           <connector-ref>netty-ssl-connector</connector-ref>
+        </broadcast-group>
+     </broadcast-groups>
+     
+     <discovery-groups>
+        <discovery-group name="my-discovery-group">
+           <group-address>${udp-address:231.7.8.12}</group-address>
+           <group-port>9876</group-port>
+        </discovery-group>
+     </discovery-groups>
+
+     <cluster-connections>
+        <cluster-connection name="my-cluster">
+           <connector-ref>netty-ssl-connector</connector-ref>
+           <discovery-group-ref discovery-group-name="my-discovery-group"/>
+           <message-load-balancing>STRICT</message-load-balancing>
+           <max-hops>1</max-hops>
+           <use-duplicate-detection>true</use-duplicate-detection>
+        </cluster-connection>
+     </cluster-connections>
+     ```
+   - Create 2 more brokers named AcmeFactoryBrokerB and AcmeFactoryBrokerC at /home/student/exam/brokers directory (all of the brokers share the exact same configuration except for the ports).
+     ```bash
+     ${HOME_ARTEMIS}/bin/artemis create AcmeFactoryBrokerB --port-offset 1
+     ${HOME_ARTEMIS}/bin/artemis create AcmeFactoryBrokerC --port-offset 2
+     ```
 
 ## 8. Configuring HA
