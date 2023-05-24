@@ -158,6 +158,11 @@ AMQ configuration excercices.
            <use-duplicate-detection>true</use-duplicate-detection>
         </cluster-connection>
      </cluster-connections>
+
+     <address-setting match="#">
+        <redelivery-delay>0</redelivery-delay>
+        <redistribution-delay>0</redistribution-delay>
+     </address-setting>
      ```
    - Create 2 more brokers named AcmeFactoryBrokerB and AcmeFactoryBrokerC at /home/student/exam/brokers directory (all of the brokers share the exact same configuration except for the ports).
      ```bash
@@ -166,3 +171,30 @@ AMQ configuration excercices.
      ```
 
 ## 8. Configuring HA
+   - Create 2 more brokers named AcmeFactoryBrokerMaster and AcmeFactoryBrokerSlave at /home/student/exam/brokers directory based on AcmeFactoryBroker configuration.
+     ```bash
+     ${HOME_ARTEMIS}/bin/artemis create AcmeFactoryBrokerMaster
+     ${HOME_ARTEMIS}/bin/artemis create AcmeFactoryBrokerSlave --port-offset 1
+     ```
+   - Configure High Availability and Failover in both brokers using Replication policy.
+      - Configure HA in AcmeFactoryBrokerMaster
+        ```xml
+        <ha-policy>
+           <replication>
+              <master>
+                 <check-for-live-server>true</check-for-live-server>
+              </master>
+           </replication>
+        </ha-policy>
+        ```
+      - Configure Failover in AcmeFactoryBrokerSlave
+        ```xml
+        <ha-policy>
+           <replication>
+              <slave>
+                 <allow-failback>true</allow-failback>
+              </slave>
+           </replication>
+        </ha-policy>
+        ```
+    
